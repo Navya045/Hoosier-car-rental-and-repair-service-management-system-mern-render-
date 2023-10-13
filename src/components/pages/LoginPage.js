@@ -24,6 +24,7 @@ export default function SignInPage() {
             </form>
             <footer>
                 <p>First time? <Link to="/register">Create an account</Link>.</p>
+                <a href="http://localhost:8080/auth/google">Login with Google</a>
                 <p><Link to="/">Back to Homepage</Link>.</p>
             </footer>
         </div>
