@@ -8,8 +8,15 @@ import cors from "cors";
 
 const app = express();
 dotenv.config({ path: ".env" });
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
 const Db = process.env.ATLAS_URI;
+
+const host = process.env.HOST || 'localhost'; // Host, usually 'localhost'
+
+app.listen(port, host, () => {
+  console.log(`Server is running on http://${host}:${port}`);
+});
+
 
 const connect = async () => {
   try {
