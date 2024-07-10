@@ -1,17 +1,56 @@
-const express = require("express");
+import express from "express";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import authRoute from "./routes/auth.js";
+import usersRoute from "./routes/users.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+
 const app = express();
-const cors = require("cors");
-require("dotenv").config({ path: "./config.env" });
-const port = process.env.PORT || 5000;
-app.use(cors());
+dotenv.config({ path: ".env" });
+const port = process.env.PORT || 3001
+const Db = process.env.ATLAS_URI;
+
+const host = process.env.HOST || 'localhost'; // Host, usually 'localhost'
+
+app.listen(port, host, () => {
+  console.log(`Server is running on http://${host}:${port}`);
+});
+
+
+const connect = async () => {
+  try {
+    await mongoose.connect(Db);
+    console.log("Connected to MongoDB.");
+  } catch (error) {
+    throw error;
+  }
+};
+
+mongoose.connection.on("disconnected", () => {
+  console.log("MongoDB disconnected!");
+});
+
+//middlewares
+app.use(cors())
+app.use(cookieParser())
 app.use(express.json());
-app.use(require("./routes/record"));
-// get driver connection
-const dbo = require("./db/conn");
+
+app.use("/api/auth", authRoute);
+app.use("/api/users", usersRoute);
+
+app.use((err, req, res, next) => {
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || "Something went wrong!";
+  return res.status(errorStatus).json({
+    success: false,
+    status: errorStatus,
+    message: errorMessage,
+    stack: err.stack,
+  });
+});
+
 app.listen(port, () => {
-  // perform a database connection when server starts
-  dbo.connectToServer(function (err) {
-    if (err) console.error(err);
-   });
+  connect();
   console.log(`Server is running on port: ${port}`);
 });
